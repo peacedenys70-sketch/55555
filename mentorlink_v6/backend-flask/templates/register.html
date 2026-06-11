@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>IFRI MentorLink – Inscription</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/Register.css') }}" />
+</head>
+<body>
+  <div class="container-fluid p-0">
+    <div class="row g-0 min-vh-100">
+
+      <!-- BRANDING -->
+      <div class="col-md-5 brand-panel d-flex flex-column justify-content-between p-5">
+        <div class="brand-top">
+          <div class="d-flex align-items-center gap-3 mb-5">
+            <img src="{{ url_for('static', filename='img/logo-mentorlink.png') }}" alt="MentorLink Logo" class="logo-image">
+            <div>
+              <div class="text-white fw-bold fs-5" style="font-family:'Syne',sans-serif;">MentorLink</div>
+              <div class="text-white opacity-75" style="font-size:0.75rem;">IFRI – UAC</div>
+            </div>
+          </div>
+          <h1 class="brand-title mb-3">Rejoignez la<br>communauté<br>IFRI.</h1>
+          <p class="brand-subtitle mb-4">Créez votre profil en 2 étapes et commencez à apprendre ou à partager vos connaissances.</p>
+        </div>
+        <img src="{{ url_for('static', filename='img/etudiant.png') }}" alt="Étudiants MentorLink" class="brand-illustration" />
+        <p class="text-white opacity-50 mb-0" style="font-size:0.78rem;">© 2026 IFRI – Université d'Abomey-Calavi</p>
+      </div>
+
+      <!-- FORMULAIRE -->
+      <div class="col-md-7 form-panel px-4 px-lg-5">
+        <div class="form-card mx-auto" style="max-width:520px;">
+
+          <div class="mb-4">
+            <h2 class="mb-1">Créer un compte</h2>
+            <p class="text-muted" style="font-size:0.9rem;">
+              Déjà inscrit ? <a href="{{ url_for('main.login_page') }}" class="link-violet">Se connecter</a>
+            </p>
+          </div>
+
+          <!-- Alerte dynamique -->
+          <div id="alertMsg" class="d-none mb-3"></div>
+
+          <!-- Barre de progression -->
+          <div class="mb-4">
+            <div class="step-bar">
+              <div class="d-flex flex-column align-items-center">
+                <div class="step-dot active" id="dot-1">1</div>
+                <span class="step-label active" id="lbl-1">Identité</span>
+              </div>
+              <div class="step-line" id="line-1"></div>
+              <div class="d-flex flex-column align-items-center">
+                <div class="step-dot" id="dot-2">2</div>
+                <span class="step-label" id="lbl-2">Profil</span>
+              </div>
+            </div>
+          </div>
+
+          <form id="registerForm" novalidate>
+
+            <!-- ÉTAPE 1 : Identité -->
+            <div class="form-step active" id="step-1">
+              <div class="row g-3 mb-3">
+                <div class="col-sm-6">
+                  <label class="form-label fw-medium" style="font-size:0.88rem;">Nom</label>
+                  <div class="input-group">
+                    <span class="input-group-text"><i class="bi bi-person"></i></span>
+                    <input type="text" id="nom" class="form-control" placeholder="AHOUANTO" required />
+                  </div>
+                </div>
+                <div class="col-sm-6">
+                  <label class="form-label fw-medium" style="font-size:0.88rem;">Prénom</label>
+                  <div class="input-group">
+                    <span class="input-group-text"><i class="bi bi-person"></i></span>
+                    <input type="text" id="prenom" class="form-control" placeholder="Leonce" required />
+                  </div>
+                </div>
+              </div>
+              <div class="mb-3">
+                <label class="form-label fw-medium" style="font-size:0.88rem;">Adresse e-mail</label>
+                <div class="input-group">
+                  <span class="input-group-text"><i class="bi bi-envelope"></i></span>
+                  <input type="email" id="email" class="form-control" placeholder="exemple@ifri-uac.bj" required />
+                </div>
+              </div>
+              <div class="mb-3">
+                <label class="form-label fw-medium" style="font-size:0.88rem;">Numéro de téléphone</label>
+                <div class="input-group">
+                  <span class="input-group-text"><i class="bi bi-telephone"></i></span>
+                  <input type="tel" id="telephone" class="form-control" placeholder="+229 01 00 00 00 00" required />
+                </div>
+              </div>
+              <div class="mb-3">
+                <label class="form-label fw-medium" style="font-size:0.88rem;">Mot de passe</label>
+                <div class="input-group">
+                  <span class="input-group-text"><i class="bi bi-lock"></i></span>
+                  <input type="password" id="password" class="form-control" placeholder="••••••••" required />
+                </div>
+              </div>
+              <div class="mb-4">
+                <label class="form-label fw-medium" style="font-size:0.88rem;">Confirmer le mot de passe</label>
+                <div class="input-group">
+                  <span class="input-group-text"><i class="bi bi-lock-fill"></i></span>
+                  <input type="password" id="password2" class="form-control" placeholder="••••••••" required />
+                </div>
+                <div id="pwd-match" class="mt-1" style="font-size:0.75rem;"></div>
+              </div>
+              <div class="d-grid">
+                <button type="button" class="btn btn-mentorlink" id="btnNext">
+                  Suivant <i class="bi bi-arrow-right ms-1"></i>
+                </button>
+              </div>
+            </div>
+
+            <!-- ÉTAPE 2 : Profil académique -->
+            <div class="form-step" id="step-2" style="display:none;">
+              <div class="mb-3">
+                <label class="form-label fw-medium" style="font-size:0.88rem;">Filière</label>
+                <select id="filiere" class="form-select" required>
+                  <option value="" disabled selected>Choisir une filière…</option>
+                  <option value="IA">Intelligence Artificielle (IA)</option>
+                  <option value="SI">Sécurité Informatique (SI)</option>
+                  <option value="IM">Internet Multimédia (IM)</option>
+                  <option value="GL">Génie Logiciel (GL)</option>
+                  <option value="SE">Systèmes Embarqués & IoT</option>
+                </select>
+              </div>
+              <div class="mb-3">
+                <label class="form-label fw-medium" style="font-size:0.88rem;">Niveau d'études</label>
+                <select id="niveau" class="form-select" required>
+                  <option value="" disabled selected>Choisir un niveau…</option>
+                  <option value="L1">Licence 1</option>
+                  <option value="L2">Licence 2</option>
+                  <option value="L3">Licence 3</option>
+                  <option value="M1">Master 1</option>
+                  <option value="M2">Master 2</option>
+                </select>
+              </div>
+
+              <div class="mb-3">
+                <p class="section-label" style="font-size:0.85rem;font-weight:600;">Points forts (compétences)</p>
+                <div class="d-flex flex-wrap gap-2" id="tags-forts">
+                  <span class="skill-tag" data-val="Python">Python</span>
+                  <span class="skill-tag" data-val="JavaScript">JavaScript</span>
+                  <span class="skill-tag" data-val="HTML/CSS">HTML/CSS</span>
+                  <span class="skill-tag" data-val="SQL">SQL</span>
+                  <span class="skill-tag" data-val="Algorithmique">Algorithmique</span>
+                  <span class="skill-tag" data-val="Réseaux">Réseaux</span>
+                  <span class="skill-tag" data-val="Machine Learning">Machine Learning</span>
+                  <span class="skill-tag" data-val="Maths">Maths</span>
+                </div>
+              </div>
+
+              <div class="mb-4">
+                <p class="section-label" style="font-size:0.85rem;font-weight:600;">Points faibles (lacunes)</p>
+                <div class="d-flex flex-wrap gap-2" id="tags-faibles">
+                  <span class="skill-tag" data-val="Python">Python</span>
+                  <span class="skill-tag" data-val="JavaScript">JavaScript</span>
+                  <span class="skill-tag" data-val="HTML/CSS">HTML/CSS</span>
+                  <span class="skill-tag" data-val="SQL">SQL</span>
+                  <span class="skill-tag" data-val="Algorithmique">Algorithmique</span>
+                  <span class="skill-tag" data-val="Réseaux">Réseaux</span>
+                  <span class="skill-tag" data-val="Machine Learning">Machine Learning</span>
+                  <span class="skill-tag" data-val="Maths">Maths</span>
+                </div>
+              </div>
+
+              <div class="d-flex gap-2">
+                <button type="button" class="btn btn-outline-secondary w-50" id="btnBack">
+                  <i class="bi bi-arrow-left me-1"></i> Retour
+                </button>
+                <button type="submit" class="btn btn-mentorlink w-50" id="btnSubmit">
+                  <span id="submitText">Créer mon compte</span>
+                  <span id="submitSpinner" class="d-none">
+                    <span class="spinner-border spinner-border-sm me-1"></span>Création…
+                  </span>
+                </button>
+              </div>
+            </div>
+
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    // ── Sélection des tags compétences/lacunes
+    document.querySelectorAll('.skill-tag').forEach(tag => {
+      tag.addEventListener('click', () => tag.classList.toggle('selected'));
+    });
+
+    // ── Navigation entre étapes
+    document.getElementById('btnNext').addEventListener('click', () => {
+      const pwd  = document.getElementById('password').value;
+      const pwd2 = document.getElementById('password2').value;
+      const matchEl = document.getElementById('pwd-match');
+
+      if (!document.getElementById('nom').value ||
+          !document.getElementById('email').value ||
+          !document.getElementById('telephone').value || !pwd) {
+        alert('Veuillez remplir tous les champs obligatoires.');
+        return;
+      }
+      if (pwd !== pwd2) {
+        matchEl.textContent = 'Les mots de passe ne correspondent pas.';
+        matchEl.style.color = 'red';
+        return;
+      }
+
+      // Passer à l'étape 2
+      document.getElementById('step-1').style.display = 'none';
+      document.getElementById('step-2').style.display = 'block';
+      document.getElementById('dot-1').classList.add('done');
+      document.getElementById('dot-2').classList.add('active');
+      document.getElementById('lbl-2').classList.add('active');
+    });
+
+    document.getElementById('btnBack').addEventListener('click', () => {
+      document.getElementById('step-2').style.display = 'none';
+      document.getElementById('step-1').style.display = 'block';
+    });
+
+    // ── Soumission → POST /auth/register
+    document.getElementById('registerForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const alertEl = document.getElementById('alertMsg');
+      const submitText    = document.getElementById('submitText');
+      const submitSpinner = document.getElementById('submitSpinner');
+      const pwd  = document.getElementById('password').value;
+      const pwd2 = document.getElementById('password2').value;
+      if (pwd !== pwd2) {
+        const matchEl = document.getElementById('pwd-match');
+        matchEl.textContent = '❌ Les mots de passe ne correspondent pas.';
+        matchEl.style.color = 'red';
+        document.getElementById('step-2').style.display = 'none';
+        document.getElementById('step-1').style.display = 'block';
+        return;
+      }
+
+      // Récupérer les compétences et lacunes cochées
+      const competences = [...document.querySelectorAll('#tags-forts .skill-tag.active')]
+                          .map(t => t.dataset.val);
+      const lacunes     = [...document.querySelectorAll('#tags-faibles .skill-tag.active')]
+                          .map(t => t.dataset.val);
+
+      const payload = {
+        nom:          document.getElementById('nom').value.trim(),
+        prenom:       document.getElementById('prenom').value.trim(),
+        email:        document.getElementById('email').value.trim(),
+        telephone:    document.getElementById('telephone').value.trim(),
+        mot_de_passe: document.getElementById('password').value,
+        filiere:      document.getElementById('filiere').value,
+        niveau:       document.getElementById('niveau').value,
+        competences,
+        lacunes
+      };
+
+      submitText.classList.add('d-none');
+      submitSpinner.classList.remove('d-none');
+      alertEl.classList.add('d-none');
+
+      try {
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        // APPEL API → POST /auth/register
+        // Corps JSON : nom, prenom, email, telephone,
+        //              mot_de_passe, filiere, niveau
+        // Réponse attendue : { message, id_user }
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        const res = await fetch('/auth/register', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+
+        const data = await res.json();
+
+        if (!res.ok) {
+          alertEl.className = 'alert alert-danger';
+          alertEl.textContent = data.error || 'Erreur lors de l\'inscription.';
+          alertEl.classList.remove('d-none');
+        } else {
+          // Après inscription, appeler l'API compétences/lacunes
+          const token = await loginAndGetToken(payload.email, payload.mot_de_passe);
+          if (token) {
+            for (const comp of competences) {
+              await fetch('/users/me/competences', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                body: JSON.stringify({ nom_competence: comp })
+              });
+            }
+            for (const lac of lacunes) {
+              await fetch('/users/me/lacunes', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                body: JSON.stringify({ nom_competence: lac })
+              });
+            }
+            localStorage.setItem('access_token', token);
+          }
+          alertEl.className = 'alert alert-success';
+          alertEl.textContent = 'Compte créé avec succès ! Redirection…';
+          alertEl.classList.remove('d-none');
+          setTimeout(() => window.location.href = '/dashboard', 1200);
+        }
+      } catch (err) {
+        alertEl.className = 'alert alert-danger';
+        alertEl.textContent = 'Erreur réseau. Vérifiez votre connexion.';
+        alertEl.classList.remove('d-none');
+      } finally {
+        submitText.classList.remove('d-none');
+        submitSpinner.classList.add('d-none');
+      }
+    });
+
+    async function loginAndGetToken(email, mot_de_passe) {
+      try {
+        const res = await fetch('/auth/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, mot_de_passe })
+        });
+        const data = await res.json();
+        return data.access_token || null;
+      } catch { return null; }
+    }
+  </script>
+</body>
+</html>

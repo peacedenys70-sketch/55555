@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>IFRI MentorLink – Mes Matchs</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/match.css') }}" />
+</head>
+<body>
+
+  <aside class="sidebar" id="sidebar">
+    <a href="/dashboard" class="sidebar-logo">
+      <img src="/static/img/logo-mentorlink.png" alt="IFRI MentorLink" class="sidebar-logo-img">
+      <div><div class="sidebar-logo-text">IFRI MentorLink</div><div class="sidebar-logo-sub">UAC – Bénin</div></div>
+    </a>
+    <nav class="sidebar-nav">
+      <div class="sidebar-section-label">Menu</div>
+      <a href="/dashboard" class="nav-item-link"><i class="bi bi-grid-1x2 nav-icon"></i> Tableau de bord</a>
+      <a href="/annonces"  class="nav-item-link"><i class="bi bi-megaphone nav-icon"></i> Annonces</a>
+      <div class="sidebar-section-label">Social</div>
+      <a href="/messages"  class="nav-item-link"><i class="bi bi-chat-dots nav-icon"></i> Messagerie</a>
+      <a href="/matching"  class="nav-item-link active"><i class="bi bi-people nav-icon"></i> Mes matchs</a>
+      <div class="sidebar-section-label">Compte</div>
+      <a href="/profil"    class="nav-item-link"><i class="bi bi-person-circle nav-icon"></i> Profil</a>
+      <a href="#" id="logoutBtn" class="nav-item-link" style="color:#ef4444;"><i class="bi bi-box-arrow-left nav-icon"></i> Déconnexion</a>
+    </nav>
+    <div class="sidebar-footer">
+      <a href="/profil" class="sidebar-user">
+        <div class="sidebar-avatar" id="sidebarAvatar">?</div>
+        <div>
+          <div class="sidebar-user-name" id="sidebarName">…</div>
+          <div class="sidebar-user-role" id="sidebarRole"></div>
+        </div>
+      </a>
+    </div>
+  </aside>
+  <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+  <header class="topbar">
+    <div class="d-flex align-items-center gap-3">
+      <button class="topbar-hamburger" id="hamburgerBtn"><i class="bi bi-list"></i></button>
+      <span class="topbar-title">Mes matchs & Suggestions</span>
+    </div>
+  </header>
+
+  <main class="main-content">
+
+    <h5 class="fw-700 mb-3">Suggestions de mentors</h5>
+    <div id="suggestionsGrid" class="row g-3 mb-5">
+      <div class="col-12 text-center py-4 text-muted">
+        <span class="spinner-border spinner-border-sm me-2"></span>Chargement…
+      </div>
+    </div>
+    <h5 class="fw-700 mb-3 mt-5">Demandes reçues</h5>
+<div id="demandesGrid" class="row g-3">
+  <div class="col-12 text-center py-4 text-muted">
+    <span class="spinner-border spinner-border-sm me-2"></span>Chargement…
+  </div>
+</div>
+
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    if (!localStorage.getItem('access_token')) window.location.href = '/login';
+    function authHeaders() {
+      return { 'Content-Type': 'application/json', 'Authorization': `Bearer ${localStorage.getItem('access_token')}` };
+    }
+    document.getElementById('hamburgerBtn').addEventListener('click', () => document.getElementById('sidebar').classList.toggle('open'));
+    document.getElementById('sidebarOverlay').addEventListener('click', () => document.getElementById('sidebar').classList.remove('open'));
+    document.getElementById('logoutBtn').addEventListener('click', (e) => { e.preventDefault(); localStorage.clear(); window.location.href = '/login'; });
+
+    // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    // SUGGESTIONS → GET /matching/suggestions
+    // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    async function loadSuggestions() {
+      const res  = await fetch('/matching/suggestions', { headers: authHeaders() });
+      const list = await res.json();
+      const grid = document.getElementById('suggestionsGrid');
+
+      if (!list.length) {
+        grid.innerHTML = `<p class="text-muted py-3 col-12 text-center">
+          Aucune suggestion.<br>
+          <a href="/profil" class="link-violet">Ajoutez des lacunes dans votre profil</a> pour trouver des mentors.
+        </p>`;
+        return;
+      }
+
+      grid.innerHTML = list.map(u => `
+        <div class="col-sm-6 col-lg-4">
+          <div class="card h-100 border-0 shadow-sm" style="border-radius:16px;">
+            <div class="card-body">
+              <div class="d-flex align-items-center gap-3 mb-3">
+                <div style="width:52px;height:52px;border-radius:50%;background:#ede9fe;display:flex;align-items:center;justify-content:center;font-weight:700;color:#7c3aed;font-size:1.1rem;">
+                  ${u.prenom[0]}${u.nom[0]}
+                </div>
+                <div>
+                  <div class="fw-700">${u.prenom} ${u.nom}</div>
+                  <div style="font-size:0.78rem;color:#6b7280;">${u.niveau} – ${u.filiere}</div>
+                </div>
+              </div>
+              <div class="d-flex justify-content-between align-items-center mb-1">
+                <span style="font-size:0.78rem;color:#6b7280;">Compatibilité</span>
+                <span style="font-weight:700;color:#7c3aed;">${u.score}%</span>
+              </div>
+              <div style="background:#ede9fe;border-radius:999px;height:6px;overflow:hidden;margin-bottom:1rem;">
+                <div style="width:${u.score}%;height:100%;background:linear-gradient(90deg,#a78bfa,#7c3aed);border-radius:999px;transition:width 1s;"></div>
+              </div>
+              <div class="mb-2">
+                ${(u.competences || []).map(c => `<span class="badge me-1" style="background:#d1fae5;color:#059669;font-size:0.7rem;">${c}</span>`).join('')}
+              </div>
+              <button class="btn btn-sm w-100 btn-mentorlink" onclick="createMatch(${u.id_user}, ${u.score})">
+                <i class="bi bi-person-plus me-1"></i>Envoyer une demande de match
+              </button>
+            </div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    // CRÉER UN MATCHING → POST /matching/
+    // Corps JSON : { mentor_id, score }
+    // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    async function createMatch(mentorId, score) {
+      const res  = await fetch('/matching/', {
+        method: 'POST',
+        headers: authHeaders(),
+        body: JSON.stringify({ mentor_id: mentorId, score })
+      });
+      const data = await res.json();
+      if (res.ok) {
+        alert(`✅ Matching créé ! Conversation ouverte (ID: ${data.id_conversation})`);
+        window.location.href = '/messages';
+      } else {
+        alert(data.error || 'Erreur lors du matching.');
+      }
+    }
+
+    fetch('/users/me', { headers: authHeaders() }).then(r => r.json()).then(u => {
+      const _ini = ((u.prenom||'?')[0]+(u.nom||'?')[0]).toUpperCase();
+      const _sa = document.getElementById('sidebarAvatar');
+      if (u.photo) { _sa.innerHTML = `<img src="${u.photo}" alt="avatar">`; }
+      else { _sa.textContent = _ini; }
+      document.getElementById('sidebarName').textContent   = `${u.prenom} ${u.nom}`;
+      document.getElementById('sidebarRole').textContent   = `${u.niveau} – ${u.filiere}`;
+    });
+
+    loadSuggestions();
+    async function loadDemandes() {
+  const res  = await fetch('/matching/mes-demandes', { headers: authHeaders() });
+  const list = await res.json();
+  const grid = document.getElementById('demandesGrid');
+
+  if (!list.length) {
+    grid.innerHTML = '<p class="text-muted py-3 col-12 text-center">Aucune demande reçue pour l\'instant.</p>';
+    return;
+  }
+
+  grid.innerHTML = list.map(m => `
+    <div class="col-sm-6 col-lg-4">
+      <div class="card h-100 border-0 shadow-sm" style="border-radius:16px;">
+        <div class="card-body">
+          <div class="d-flex align-items-center gap-3 mb-3">
+            <div style="width:52px;height:52px;border-radius:50%;background:#fef3c7;display:flex;align-items:center;justify-content:center;font-weight:700;color:#d97706;font-size:1.1rem;">
+              ${m.mentore.prenom[0]}${m.mentore.nom[0]}
+            </div>
+            <div>
+              <div class="fw-700">${m.mentore.prenom} ${m.mentore.nom}</div>
+              <div style="font-size:0.78rem;color:#6b7280;">${m.mentore.niveau} – ${m.mentore.filiere}</div>
+            </div>
+          </div>
+          <div class="d-flex justify-content-between mb-3">
+            <span class="badge" style="background:${m.statut==='ACCEPTE'?'#d1fae5':m.statut==='REFUSE'?'#fee2e2':'#ede9fe'};color:${m.statut==='ACCEPTE'?'#065f46':m.statut==='REFUSE'?'#991b1b':'#7c3aed'};">
+              ${m.statut}
+            </span>
+            <small class="text-muted">${new Date(m.date_matching).toLocaleDateString('fr-FR')}</small>
+          </div>
+          <div class="d-flex gap-2">
+            <button class="btn btn-sm btn-success w-50" onclick="repondre(${m.id_matching}, 'ACCEPTE')">
+              <i class="bi bi-check2 me-1"></i>Accepter
+            </button>
+            <button class="btn btn-sm btn-outline-danger w-50" onclick="repondre(${m.id_matching}, 'REFUSE')">
+              <i class="bi bi-x me-1"></i>Refuser
+            </button>
+          </div>
+          ${m.id_conversation && m.statut==='ACCEPTE' ? `
+            <a href="/messages?conv=${m.id_conversation}" class="btn btn-sm btn-mentorlink w-100 mt-2">
+              <i class="bi bi-chat-dots me-1"></i>Ouvrir la conversation
+            </a>` : ''}
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
+
+
+async function repondre(id_matching, statut) {
+  const res = await fetch(`/matching/${id_matching}/statut`, {
+    method: 'PUT',
+    headers: authHeaders(),
+    body: JSON.stringify({ statut })
+  });
+  if (res.ok) loadDemandes();
+  else alert('Erreur lors de la réponse.');
+}
+
+
+loadDemandes();
+  </script>
+  
+</body>
+</html>

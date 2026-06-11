@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>IFRI MentorLink – Tableau de bord</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/mentorlink.css') }}" />
+  <style>
+    .stat-card { background:var(--bg-card);border-radius:var(--card-radius);padding:1.2rem 1.35rem;box-shadow:var(--shadow-sm);border:1px solid var(--border);display:flex;align-items:center;gap:1rem; }
+    .stat-icon { width:46px;height:46px;border-radius:13px;display:flex;align-items:center;justify-content:center;font-size:1.2rem;flex-shrink:0; }
+    .stat-value { font-family:'Syne',sans-serif;font-size:1.65rem;font-weight:800;line-height:1;color:var(--text-dark); }
+    .stat-label { font-size:0.77rem;color:var(--text-muted);margin-top:0.2rem;font-weight:500; }
+    .match-card { background:var(--bg-card);border-radius:var(--card-radius);padding:1.25rem;box-shadow:var(--shadow-sm);border:1px solid var(--border);height:100%; }
+    .match-avatar { width:48px;height:48px;border-radius:50%;background:var(--violet-light);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:1rem;color:var(--violet);flex-shrink:0; }
+    .annonce-card { background:var(--bg-card);border-radius:14px;padding:1rem 1.2rem;box-shadow:var(--shadow-xs);border:1px solid var(--border);border-left:4px solid var(--violet);margin-bottom:0.75rem; }
+    .greeting-banner { background:linear-gradient(135deg,var(--violet) 0%,#9333ea 50%,#7c3aed 100%);border-radius:var(--card-radius);padding:1.5rem 2rem;margin-bottom:1.75rem;color:#fff; }
+  </style>
+</head>
+<body>
+  
+  <!-- SIDEBAR -->
+  <aside class="sidebar" id="sidebar">
+    <a href="/dashboard" class="sidebar-logo">
+      <img src="/static/img/logo-mentorlink.png" alt="IFRI MentorLink" class="sidebar-logo-img">
+      <div>
+        <div class="sidebar-logo-text">IFRI MentorLink</div>
+        <div class="sidebar-logo-sub">UAC – Bénin</div>
+      </div>
+    </a>
+    <nav class="sidebar-nav">
+      <div class="sidebar-section-label">Menu</div>
+      <a href="/dashboard"   class="nav-item-link active"><i class="bi bi-grid-1x2 nav-icon"></i> Tableau de bord</a>
+      <a href="/annonces"    class="nav-item-link"><i class="bi bi-megaphone nav-icon"></i> Annonces</a>
+      <div class="sidebar-section-label">Social</div>
+      <a href="/messages"    class="nav-item-link"><i class="bi bi-chat-dots nav-icon"></i> Messagerie</a>
+      <a href="/matching"    class="nav-item-link"><i class="bi bi-people nav-icon"></i> Mes matchs</a>
+      <div class="sidebar-section-label">Compte</div>
+      <a href="/profil"      class="nav-item-link"><i class="bi bi-person-circle nav-icon"></i> Profil</a>
+      <a href="#" id="logoutBtn" class="nav-item-link" style="color:#ef4444;"><i class="bi bi-box-arrow-left nav-icon"></i> Déconnexion</a>
+    </nav>
+    <div class="sidebar-footer">
+      <a href="/profil" class="sidebar-user">
+        <div class="sidebar-avatar" id="sidebarAvatar">?</div>
+        <div>
+          <div class="sidebar-user-name" id="sidebarName">Chargement…</div>
+          <div class="sidebar-user-role" id="sidebarRole"></div>
+        </div>
+      </a>
+    </div>
+  </aside>
+  <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+  <!-- TOPBAR -->
+  <header class="topbar">
+    <div class="d-flex align-items-center gap-3">
+      <button class="topbar-hamburger" id="hamburgerBtn"><i class="bi bi-list"></i></button>
+      <span class="topbar-title">Tableau de bord</span>
+    </div>
+  </header>
+
+  <!-- CONTENU PRINCIPAL -->
+  <main class="main-content">
+
+    <!-- Bannière de bienvenue -->
+    <div class="greeting-banner">
+      <h4 class="mb-1" id="greetingTitle">Bonjour ! 👋</h4>
+      <p class="mb-0 opacity-75" style="font-size:0.9rem;">Voici un résumé de votre activité sur MentorLink.</p>
+    </div>
+
+    <!-- Cartes statistiques -->
+    <div class="row g-3 mb-4">
+      <div class="col-6 col-lg-3">
+        <div class="stat-card">
+          <div class="stat-icon" style="background:#ede9fe;color:#7c3aed;"><i class="bi bi-people-fill"></i></div>
+          <div>
+            <div class="stat-value" id="statMatchs">–</div>
+            <div class="stat-label">Matchs actifs</div>
+          </div>
+        </div>
+      </div>
+      <div class="col-6 col-lg-3">
+        <div class="stat-card">
+          <div class="stat-icon" style="background:#fef3c7;color:#d97706;"><i class="bi bi-megaphone-fill"></i></div>
+          <div>
+            <div class="stat-value" id="statAnnonces">–</div>
+            <div class="stat-label">Annonces actives</div>
+          </div>
+        </div>
+      </div>
+      <div class="col-6 col-lg-3">
+        <div class="stat-card">
+          <div class="stat-icon" style="background:#d1fae5;color:#059669;"><i class="bi bi-star-fill"></i></div>
+          <div>
+            <div class="stat-value" id="statCompetences">–</div>
+            <div class="stat-label">Compétences</div>
+          </div>
+        </div>
+      </div>
+      <div class="col-6 col-lg-3">
+        <div class="stat-card">
+          <div class="stat-icon" style="background:#fee2e2;color:#dc2626;"><i class="bi bi-lightning-fill"></i></div>
+          <div>
+            <div class="stat-value" id="statSuggestions">–</div>
+            <div class="stat-label">Suggestions</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="row g-4">
+      <!-- Suggestions de matchs -->
+      <div class="col-lg-7">
+        <div class="card-section-header d-flex justify-content-between align-items-center mb-3">
+          <h6 class="mb-0 fw-700">Suggestions de matchs</h6>
+          <a href="/matching" class="link-violet" style="font-size:0.82rem;">Voir tout</a>
+        </div>
+        <div id="suggestionsContainer" class="row g-3">
+          <div class="col-12 text-center text-muted py-4">
+            <span class="spinner-border spinner-border-sm me-2"></span>Chargement…
+          </div>
+        </div>
+      </div>
+
+      <!-- Dernières annonces -->
+      <div class="col-lg-5">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <h6 class="mb-0 fw-700">Dernières annonces</h6>
+          <a href="/annonces" class="link-violet" style="font-size:0.82rem;">Voir tout</a>
+        </div>
+        <div id="annoncesContainer">
+          <div class="text-center text-muted py-4">
+            <span class="spinner-border spinner-border-sm me-2"></span>Chargement…
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    // ── Utilitaire : récupérer le token JWT
+    function getToken() {
+      return localStorage.getItem('access_token');
+    }
+
+    // ── Rediriger si non connecté
+    if (!getToken()) window.location.href = '/login';
+
+    // ── Headers d'authentification
+    function authHeaders() {
+      return {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${getToken()}`
+      };
+    }
+
+    // ── Déconnexion
+    document.getElementById('logoutBtn').addEventListener('click', (e) => {
+      e.preventDefault();
+      localStorage.removeItem('access_token');
+      localStorage.removeItem('user');
+      window.location.href = '/login';
+    });
+
+    // ── Sidebar hamburger
+    const hamburger = document.getElementById('hamburgerBtn');
+    const sidebar   = document.getElementById('sidebar');
+    const overlay   = document.getElementById('sidebarOverlay');
+    hamburger.addEventListener('click', () => sidebar.classList.toggle('open'));
+    overlay.addEventListener('click', () => sidebar.classList.remove('open'));
+
+    // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    // CHARGEMENT DES DONNÉES UTILISATEUR → GET /users/me
+    // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    async function loadUser() {
+      const res  = await fetch('/users/me', { headers: authHeaders() });
+      if (!res.ok) { localStorage.clear(); window.location.href = '/login'; return; }
+      const user = await res.json();
+
+      const initials = (user.prenom[0] + user.nom[0]).toUpperCase();
+      document.getElementById('sidebarAvatar').textContent = initials;
+      document.getElementById('sidebarName').textContent   = `${user.prenom} ${user.nom}`;
+      document.getElementById('sidebarRole').textContent   = `${user.niveau} – ${user.filiere}`;
+      document.getElementById('greetingTitle').textContent = `Bonjour, ${user.prenom} ! 👋`;
+      document.getElementById('statCompetences').textContent = user.competences?.length ?? 0;
+      return user;
+    }
+
+    // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    // SUGGESTIONS DE MATCHS → GET /matching/suggestions
+    // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    async function loadSuggestions() {
+      const res  = await fetch('/matching/suggestions', { headers: authHeaders() });
+      const list = await res.json();
+      const container = document.getElementById('suggestionsContainer');
+      document.getElementById('statSuggestions').textContent = list.length;
+
+      if (!list.length) {
+        container.innerHTML = '<p class="text-muted text-center py-3">Aucune suggestion pour l\'instant.<br>Ajoutez des lacunes dans votre profil.</p>';
+        return;
+      }
+
+      container.innerHTML = list.slice(0, 4).map(u => `
+        <div class="col-sm-6">
+          <div class="match-card">
+            <div class="d-flex align-items-center gap-3 mb-2">
+              <div class="match-avatar">${u.prenom[0]}${u.nom[0]}</div>
+              <div>
+                <div style="font-weight:700;font-size:0.9rem;">${u.prenom} ${u.nom}</div>
+                <div style="font-size:0.74rem;color:var(--text-muted);">${u.niveau} – ${u.filiere}</div>
+              </div>
+            </div>
+            <div class="d-flex justify-content-between align-items-center mb-1">
+              <span style="font-size:0.75rem;color:var(--text-muted);">Compatibilité</span>
+              <span style="font-size:0.8rem;font-weight:700;color:var(--violet);">${u.score}%</span>
+            </div>
+            <div style="background:var(--violet-xlight);border-radius:999px;height:5px;overflow:hidden;">
+              <div style="width:${u.score}%;height:100%;background:linear-gradient(90deg,var(--violet-mid),var(--violet));border-radius:999px;"></div>
+            </div>
+            <button class="btn btn-sm btn-mentorlink w-100 mt-3"
+              onclick="createMatch(${u.id_user}, ${u.score})">
+              <i class="bi bi-person-plus me-1"></i>Matcher
+            </button>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    // CRÉER UN MATCHING → POST /matching/
+    // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    async function createMatch(mentorId, score) {
+      const res  = await fetch('/matching/', {
+        method: 'POST',
+        headers: authHeaders(),
+        body: JSON.stringify({ mentor_id: mentorId, score })
+      });
+      const data = await res.json();
+      if (res.ok) {
+        alert('Matching créé ! Une conversation a été ouverte.');
+        loadSuggestions();
+      } else {
+        alert(data.error || 'Erreur lors du matching.');
+      }
+    }
+
+    // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    // ANNONCES → GET /annonces/
+    // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    async function loadAnnonces() {
+      const res  = await fetch('/annonces/', { headers: authHeaders() });
+      const list = await res.json();
+      document.getElementById('statAnnonces').textContent = list.length;
+
+      const container = document.getElementById('annoncesContainer');
+      if (!list.length) {
+        container.innerHTML = '<p class="text-muted text-center py-3">Aucune annonce active.</p>';
+        return;
+      }
+
+      container.innerHTML = list.slice(0, 5).map(a => `
+        <div class="annonce-card ${a.type_annonce === 'DEMANDE' ? 'demande' : ''}">
+          <div class="d-flex justify-content-between align-items-start mb-1">
+            <strong style="font-size:0.88rem;">${a.titre}</strong>
+            <span class="badge" style="background:${a.type_annonce==='OFFRE'?'#ede9fe':'#fef3c7'};color:${a.type_annonce==='OFFRE'?'#7c3aed':'#d97706'};font-size:0.68rem;">
+              ${a.type_annonce}
+            </span>
+          </div>
+          <p style="font-size:0.78rem;color:var(--text-muted);margin:0;">${a.description.slice(0,80)}…</p>
+        </div>
+      `).join('');
+    }
+
+    // ── Lancer tous les chargements au démarrage
+    (async () => {
+      await loadUser();
+      await Promise.all([loadSuggestions(), loadAnnonces()]);
+    })();
+  </script>
+ 
+</body>
+</html>
